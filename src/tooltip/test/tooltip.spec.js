@@ -325,6 +325,30 @@ describe('tooltip', function() {
     }));
   });
 
+  describe( 'expanded content', function () {
+
+    beforeEach(inject(function ($compile) {
+      scope.delay='1000';
+      scope.expandedContent = 'expanded tooltip text';
+      elm = $compile(angular.element(
+        '<span tooltip="tooltip text" tooltip-expand-delay="{{delay}}" tooltip-expanded-content="{{expandedContent}}">Selector Text</span>'
+      ))(scope);
+      elmScope = elm.scope();
+      scope.$digest();
+    }));
+
+    it('should expand after timeout', inject(function ($timeout) {
+
+      elm.trigger('mouseenter');
+      expect(elmScope.tt_content).not.toEqual(scope.expandedContent);
+
+      $timeout.flush();
+      expect(elmScope.tt_content).toBe(scope.expandedContent);
+
+    }));
+
+  });
+
   describe('cleanup', function () {
     var elmBody, elm, elmScope, tooltipScope;
 
