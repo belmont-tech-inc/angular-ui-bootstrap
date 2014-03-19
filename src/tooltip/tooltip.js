@@ -14,7 +14,8 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
   var defaultOptions = {
     placement: 'top',
     animation: true,
-    popupDelay: 0
+    popupDelay: 0,
+    expandDelay: 3000
   };
 
   // Default hide triggers for each show trigger
@@ -115,6 +116,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             var tooltip;
             var transitionTimeout;
             var popupTimeout;
+            var expandTimeout;
             var appendToBody = angular.isDefined( options.appendToBody ) ? options.appendToBody : false;
             var triggers = getTriggers( undefined );
             var hasRegisteredTriggers = false;
@@ -234,9 +236,20 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               scope.tt_isOpen = true;
               scope.$digest(); // digest required as $apply is not called
 
+              // start the timer for the expanded content
+              if ( scope.tt_expandedContent ) {
+                expandTimeout = $timeout( expandContent, scope.tt_expandDelay, false );
+              }
+
               // Return positioning function as promise callback for correct
               // positioning after draw.
               return positionTooltip;
+            }
+
+            function expandContent() {
+              scope.tt_content = scope.tt_expandedContent;
+              scope.$digest();
+              positionTooltip();
             }
 
             // Hide the tooltip popup element.
@@ -246,8 +259,9 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
 
               //if tooltip is going to be shown after delay, we must cancel this
               $timeout.cancel( popupTimeout );
+              $timeout.cancel( expandTimeout );
 
-              // And now we remove it from the DOM. However, if we have animation, we 
+              // And now we remove it from the DOM. However, if we have animation, we
               // need to wait for it to expire beforehand.
               // FIXME: this is a placeholder for a port of the transitions library.
               if ( scope.tt_animation ) {
@@ -271,6 +285,10 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             function removeTooltip() {
               if (tooltip) {
                 tooltip.remove();
+
+                // Restore the content to the initial 'unexpanded' state
+                scope.tt_content = attrs[type];
+
                 tooltip = null;
               }
             }
@@ -286,6 +304,10 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
               }
             });
 
+            attrs.$observe( prefix+'ExpandedContent', function ( val ) {
+              scope.tt_expandedContent = val;
+            });
+
             attrs.$observe( prefix+'Title', function ( val ) {
               scope.tt_title = val;
             });
@@ -297,6 +319,11 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             attrs.$observe( prefix+'PopupDelay', function ( val ) {
               var delay = parseInt( val, 10 );
               scope.tt_popupDelay = ! isNaN(delay) ? delay : options.popupDelay;
+            });
+
+            attrs.$observe( prefix+'ExpandDelay', function ( val ) {
+              var delay = parseInt( val, 10 );
+              scope.tt_expandDelay = ! isNaN(delay) ? delay : options.expandDelay;
             });
 
             var unregisterTriggers = function() {
