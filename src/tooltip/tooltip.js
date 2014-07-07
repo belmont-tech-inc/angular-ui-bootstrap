@@ -100,9 +100,11 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
         '<div '+ directiveName +'-popup '+
           'title="'+startSym+'tt_title'+endSym+'" '+
           'content="'+startSym+'tt_content'+endSym+'" '+
+          'expandedcontent="'+startSym+'tt_expandedContent'+endSym+'" '+
           'placement="'+startSym+'tt_placement'+endSym+'" '+
           'animation="tt_animation" '+
           'is-open="tt_isOpen"'+
+          'is-expand-open="tt_isExpandOpen"'+
           '>'+
         '</div>';
 
@@ -134,6 +136,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             // By default, the tooltip is not open.
             // TODO add ability to start tooltip opened
             scope.tt_isOpen = false;
+            scope.tt_isExpandOpen = false;
 
             function toggleTooltipBind () {
               if ( ! scope.tt_isOpen ) {
@@ -207,15 +210,15 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
             }
 
             function expandContent() {
-              scope.tt_content = scope.tt_expandedContent;
+              scope.tt_isExpandOpen = true;
               scope.$digest();
-              positionTooltip();
             }
 
             // Hide the tooltip popup element.
             function hide() {
               // First things first: we don't show it anymore.
               scope.tt_isOpen = false;
+              scope.tt_isExpandOpen = false;
 
               //if tooltip is going to be shown after delay, we must cancel this
               $timeout.cancel( popupTimeout );
@@ -340,7 +343,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
   return {
     restrict: 'EA',
     replace: true,
-    scope: { content: '@', placement: '@', animation: '&', isOpen: '&' },
+    scope: { content: '@', expandedcontent: '@', placement: '@', animation: '&', isOpen: '&', isExpandOpen : '&'},
     templateUrl: 'template/tooltip/tooltip-popup.html'
   };
 })
@@ -353,7 +356,7 @@ angular.module( 'ui.bootstrap.tooltip', [ 'ui.bootstrap.position', 'ui.bootstrap
   return {
     restrict: 'EA',
     replace: true,
-    scope: { content: '@', placement: '@', animation: '&', isOpen: '&' },
+    scope: { content: '@', expandedcontent: '@', placement: '@', animation: '&', isOpen: '&', isExpandOpen : '&'},
     templateUrl: 'template/tooltip/tooltip-html-unsafe-popup.html'
   };
 })

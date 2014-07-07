@@ -337,13 +337,13 @@ describe('tooltip', function() {
       scope.$digest();
     }));
 
-    it('should expand after timeout', inject(function ($timeout) {
+    it('should set the is-expand-open after timeout', inject(function ($timeout) {
 
       elm.trigger('mouseenter');
-      expect(elmScope.tt_content).not.toEqual(scope.expandedContent);
+      expect(elmScope.tt_isExpandOpen).toEqual(false);
 
       $timeout.flush();
-      expect(elmScope.tt_content).toBe(scope.expandedContent);
+      expect(elmScope.tt_isExpandOpen).toEqual(true);
 
     }));
 
@@ -408,8 +408,7 @@ describe('tooltipWithDifferentSymbols', function() {
       $rootScope.$apply();
       elmInput = elmBody.find('input');
       elmInput.trigger('focus');
-
-      expect( elmInput.next().find('div').next().html() ).toBe('My tooltip');
+      expect( elmInput.next().find('div').find('.tooltip-content').html() ).toBe('My tooltip');
 
     }));
 
@@ -440,7 +439,7 @@ describe( 'tooltipHtmlUnsafe', function() {
 
   it( 'should render html properly', inject( function () {
     elm.trigger( 'mouseenter' );
-    expect( elmBody.find('.tooltip-inner').html() ).toBe( scope.html );
+    expect( elmBody.find('.tooltip-content').html() ).toBe( scope.html );
   }));
 
   it( 'should show on mouseenter and hide on mouseleave', inject( function () {
